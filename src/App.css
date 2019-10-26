@@ -1,5 +1,45 @@
-.App {
+html, body, #root, .app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.title {
   text-align: center;
+}
+
+.spec-input {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 400px;
+  max-width: 800px;
+  margin: auto;
+  box-sizing: border-box;
+}
+
+.spec-submit {
+  display: block;
+  width: 100%;
+  height: 25px;
+  min-height: 25px;
+  max-height: 25px;
+  max-width: 300px;
+  margin: 20px auto auto;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 20px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  align-items: center;
 }
 
 .App-logo {
