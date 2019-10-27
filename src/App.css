@@ -218,6 +218,29 @@ html, body, #root, .app {
   font-weight: bold;
 }
 
+.response-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.response-attribute {
+  margin: 10px 0px;
+}
+
+.response-json {
+  padding: 10px;
+  margin-top: 5px;
+  overflow-y: auto;
+  border-radius: 4px;
+  background: #41444e;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: monospace;
+  font-weight: 600;
+  color: #fff;
+}
+
 .App-logo {
   height: 40vmin;
 }

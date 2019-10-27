@@ -71,10 +71,14 @@ class Explorer extends React.Component {
     } else {
       try {
         let apiData = JSON.parse(this.props.apiData);
+        let baseUrl = apiData.host + apiData.basePath;
+        if (!baseUrl.startsWith("https://")) {
+          baseUrl = "https://" + baseUrl;
+        }
         content = (
           <div className="wrapper">
             <ApiInfo info={apiData.info}/>
-            <Operations paths={apiData.paths}/>
+            <Operations baseUrl={baseUrl} paths={apiData.paths}/>
           </div>
         );
       } catch(e) {  
@@ -109,7 +113,7 @@ class Operations extends React.Component {
     for (let path in paths) {
       for (let method in paths[path]) {
         let info = paths[path][method];
-        operations.push(<Operation key={path+method} path={path} method={method} info={info}/>);
+        operations.push(<Operation key={path+method} path={path} method={method} info={info} baseUrl={this.props.baseUrl}/>);
       }
     }
     return operations;
@@ -148,7 +152,7 @@ class Operation extends React.Component {
             {info.summary}
           </div>
         </div>
-        {this.state.showDetails ? <OperationDetail info={info}/> : null}
+        {this.state.showDetails ? <OperationDetail url={this.props.baseUrl + path} method={method} info={info}/> : null}
       </div>
     );
   }
@@ -158,20 +162,74 @@ class OperationDetail extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      userParams:  null
+      bodyParams: null,
+      pathParams: null,
+      hasResponse: false,
+      response: null
     };
 
     this.onClick = this.onClick.bind(this);
-    this.updateUserParams = this.updateUserParams.bind(this);
+    this.updateParams = this.updateParams.bind(this);
+    this.constructQueryUrl = this.constructQueryUrl.bind(this);
+    this.updateResponse = this.updateResponse.bind(this);
   }
 
-  updateUserParams(newParams) {
-    this.setState({userParams: newParams});
+  updateParams(newBodyParams, newPathParams) {
+    this.setState({
+      bodyParams: newBodyParams,
+      pathParams: newPathParams,
+      hasResponse: this.state.hasResponse,
+      response: this.state.response
+    });
+  }
+
+  constructQueryUrl() {
+    let queryUrl = this.props.url;
+    for (let param in this.state.pathParams) {
+      queryUrl = queryUrl.replace("{"+param+"}", this.state.pathParams[param]);
+    }
+    return queryUrl;
+  }
+
+  updateResponse(response) {
+    this.setState({
+      bodyParams: this.state.bodyParams,
+      pathParams: this.state.pathParams,
+      response: response,
+      hasResponse: true
+    });
+  }
+
+  createResponseJson(response, body) {
+    let headers = {};
+    for(let entry of response.headers.entries()) {
+      headers[entry[0]] = entry[1];
+    }
+    let responseJson = {
+      status: response.status,
+      headers: JSON.stringify(headers, null, 2),
+      body: JSON.stringify(body, null, 2)
+    };
+
+    return responseJson;
   }
 
   onClick() {
-    //execute the API with the params
-    console.log(this.state.userParams);
+    let queryUrl = this.constructQueryUrl();
+    switch(this.props.method) {
+      case "get":
+        fetch(queryUrl)
+        .then(r => r.json().then(body => this.createResponseJson(r, body)))
+        .then(responseJson => this.updateResponse(responseJson));
+        break;
+      case "put":
+      case "post":
+      case "delete":
+        // TODO: implement the body parameters and header construction
+        break;
+      default:
+        console.log("error");
+    }
   }
 
   render() {
@@ -188,7 +246,33 @@ class OperationDetail extends React.Component {
             <button className="execute-button" type="button" onClick={this.onClick}>Execute!</button>
           </div>
         </div>
-        <OperationParameters params={this.props.info.parameters} updateUserParams={this.updateUserParams}/> 
+        <OperationParameters params={this.props.info.parameters} updateParams={this.updateParams}/> 
+        {this.state.hasResponse ? <OperationResponse response={this.state.response}/> : null}
+      </div>
+    );
+  }
+}
+
+class OperationResponse extends React.Component {
+  render() {
+    return (
+      <div className="response">
+        <div className="response-title">Response</div>
+        <div className="response-attribute">
+          <b>Code: </b>{this.props.response.status}
+        </div>
+        <div className="response-attribute">
+          <b>Headers: </b>
+          <div className="response-json">
+            {this.props.response.headers}
+          </div>
+        </div>
+        <div className="response-attribute">
+          <b>Body: </b>
+          <div className="response-json">
+            {this.props.response.body}
+          </div>
+        </div>
       </div>
     );
   }
@@ -198,22 +282,37 @@ class OperationParameters extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      userParams: {}
+      pathParams: {},
+      bodyParams: {}
     };
 
-    this.updateUserParam = this.updateUserParam.bind(this);
+    this.updateBodyParam = this.updateBodyParam.bind(this);
+    this.updatePathParam = this.updatePathParam.bind(this);
   }
 
-  updateUserParam(paramName, paramValue) {
-    let updatedParams = this.state.userParams;
+  updateBodyParam(paramName, paramValue) {
+    let updatedParams = this.state.bodyParams;
     updatedParams[paramName] = paramValue;
-    this.setState({userParams: updatedParams});
-    this.props.updateUserParams(updatedParams);
+    this.setState({
+      bodyParams: updatedParams,
+      pathParams: this.state.pathParams
+    });
+    this.props.updateParams(updatedParams, this.state.pathParams);
+  }
+
+  updatePathParam(paramName, paramValue) {
+    let updatedParams = this.state.pathParams;
+    updatedParams[paramName] = paramValue;
+    this.setState({
+      pathParams: updatedParams,
+      bodyParams: this.state.bodyParams
+    });
+    this.props.updateParams(this.state.bodyParams, updatedParams);
   }
 
   generateParameters(params) {
     return params.map(param => {
-      return <Parameter key={param.name} param={param} updateUserParam={this.updateUserParam}/>
+      return <Parameter key={param.name} param={param} updatePathParam={this.updatePathParam} updateBodyParam={this.updateBodyParam}/>
     });
   }
 
@@ -242,7 +341,11 @@ class Parameter extends React.Component {
   }
 
   onChange(event) {
-    this.props.updateUserParam(this.props.param.name, event.target.value);
+    if (this.props.param.in === "path") {
+      this.props.updatePathParam(this.props.param.name, event.target.value);
+    } else {
+      this.props.updateBodyParam(this.props.param.name, event.target.value);
+    }
   }
 
   render() {
