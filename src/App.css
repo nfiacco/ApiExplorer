@@ -1,45 +1,221 @@
 html, body, #root, .app {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  width: 100%;
 }
 
 .title {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.subtitle {
   text-align: center;
 }
 
 .spec-input {
   display: block;
-  width: 100%;
-  height: 100%;
-  max-height: 400px;
-  max-width: 800px;
-  margin: auto;
   box-sizing: border-box;
+  width: 100%;
+  max-width: 800px;
+  height: 200px;
+  resize: vertical;
+  margin: auto;
 }
 
 .spec-submit {
   display: block;
-  width: 100%;
-  height: 25px;
-  min-height: 25px;
-  max-height: 25px;
-  max-width: 300px;
-  margin: 20px auto auto;
   box-sizing: border-box;
   text-align: center;
+  width: 100%;
+  max-width: 300px;
+  min-width: 300px;
+  margin: 20px auto auto;
+  height: 40px;
+  border-radius: 5px;
+  border-width: thick;
+  font-weight: bold;
+  font-size: large;
+  outline: none;
+  cursor: pointer;
+  background: lightgrey;
+}
+
+.opblock {
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: solid 1px;
+  margin: 10px;
+}
+
+.opblock-summary {
+  cursor: pointer;
+  box-sizing: border-box;
+  padding: 5px;
+}
+
+.opblock-details {
+  box-sizing: border-box;
+  padding: 5px;
+  margin: 5px;
+}
+
+.is-open {
+  border-bottom: solid 1px;
+  border-color: inherit;
+}
+
+.opblock-get {
+  border-color: #61affe;
+  background: rgba(97,175,254,.1);
+}
+
+.opblock-delete {
+  border-color: #f93e3e;
+  background: rgba(249,62,62,.1);
+}
+
+.opblock-post {
+  border-color: #49cc90;
+  background: rgba(73,204,144,.1);
+}
+
+.opblock-put {
+  border-color: #fca130;
+  background: rgba(252,161,48,.1);
+}
+
+.path {
+  display: inline-block;
+  margin: 5px;
+  font-weight: bold;
+}
+
+.method {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 5px;
+  margin: 5px;
+  text-transform: uppercase;
+  font-weight: bold;
+  min-width: 80px;
+  text-align: center;
+  color: white;
+}
+
+.summary {
+  display: inline-block;
+  margin: 5px;
+}
+
+.method-get {
+  border-color: #61affe;
+  background: #61affe;
+}
+
+.method-delete {
+  border-color: #f93e3e;
+  background: #f93e3e;
+}
+
+.method-post {
+  border-color: #49cc90;
+  background: #49cc90;
+}
+
+.method-put {
+  border-color: #fca130;
+  background: #fca130;
 }
 
 .wrapper {
-  display: flex;
-  flex-direction: column;
+  display: block;
   box-sizing: border-box;
   padding: 20px;
   width: 100%;
-  height: 100%;
-  overflow: hidden;
   align-items: center;
+}
+
+.operation-description {
+  display: block;
+  margin-bottom: 15px;
+}
+
+.param-table {
+  border-collapse: collapse;
+}
+
+.table-header {
+  border-bottom: solid 1px LightGray;
+  font-size: 10px;
+}
+
+.description-column {
+  width: 99%;
+}
+
+.table-item {
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 10px;
+}
+
+.param-name {
+  display: inline-block;
+  font-weight: bold;
+}
+
+.param-value {
+  display: block;
+  margin-top: 10px;
+  resize: none;
+  width: 100%;
+  max-width: 300px;
+  border-radius: 4px;
+}
+
+.param-title-box {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.param-title {
+  display: inline-block;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.execute-button-wrapper {
+  display: inline-block;
+  text-align: right;
+  width: 100%;
+  height: 100%;
+  margin-right: 20px;
+}
+
+.execute-button {
+  width: 100%;
+  max-width: 200px;
+  height: 30px;
+  border-radius: 4px;
+  border-width: medium;
+  cursor: pointer;
+  outline: none;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.name-column {
+  min-width: 6em;
+  max-width: 20%;
+}
+
+.required {
+  position: relative;
+  top: -6px;
+  font-size: 10px;
+  color: red;
+  font-weight: bold;
 }
 
 .App-logo {
